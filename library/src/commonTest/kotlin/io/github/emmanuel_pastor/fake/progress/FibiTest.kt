@@ -3,10 +3,10 @@ package io.github.emmanuel_pastor.fake.progress
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-class FibiTest {
+class FooTest {
 
     @Test
-    fun `test 3rd element`() {
-        assertEquals(firstElement + secondElement, generateFibi().take(3).last())
+    fun `test return value`() {
+        assertEquals(0, foo())
     }
 }
