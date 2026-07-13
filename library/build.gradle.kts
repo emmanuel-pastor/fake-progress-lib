@@ -49,10 +49,10 @@ mavenPublishing {
     coordinates(group.toString(), "library", version.toString())
 
     pom {
-        name = "My library"
-        description = "A library."
-        inceptionYear = "2024"
-        url = "https://github.com/kotlin/multiplatform-library-template/"
+        name = "Fake progress"
+        description = "Adaptive fake progress library for asynchronous tasks with unknown duration"
+        inceptionYear = "2026"
+        url = "https://github.com/emmanuel-pastor/fake-progress-lib/"
         licenses {
             license {
                 name = "XXX"
