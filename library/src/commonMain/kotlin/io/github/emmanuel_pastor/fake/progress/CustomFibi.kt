@@ -1,4 +1,4 @@
-package io.github.kotlin.fibonacci
+package io.github.emmanuel_pastor.fake.progress
 
 fun generateFibi() = sequence {
     var a = firstElement
