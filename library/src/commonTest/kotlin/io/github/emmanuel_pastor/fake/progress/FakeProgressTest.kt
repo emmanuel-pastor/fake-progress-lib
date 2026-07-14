@@ -5,6 +5,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 
@@ -23,6 +24,19 @@ class FakeProgressTest {
 
         progressTracker.value.test {
             assertEquals(1.0, awaitItem(), EPSILON)
+        }
+    }
+
+    @Test
+    fun `don't reach 100% before finish has been called`() = runTest {
+        val eta = 10.seconds
+        val progressTracker = FakeProgress(eta)
+
+        progressTracker.start()
+        delay(eta)
+
+        progressTracker.value.test {
+            assertTrue { awaitItem() < 1.0 }
         }
     }
 }

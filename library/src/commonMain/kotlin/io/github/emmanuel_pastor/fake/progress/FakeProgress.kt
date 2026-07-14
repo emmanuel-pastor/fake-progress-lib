@@ -12,12 +12,20 @@ class FakeProgress(private val eta: Duration) {
 
     suspend fun start() = coroutineScope {
         _value.value = 0.0
-        while (_value.value < 1.0) {
+        while (_value.value < 0.9) {
             _value.value += 0.01
+            delay(eta / 100)
+        }
+        while (_value.value < 0.95) {
+            _value.value += 0.005
             delay(eta / 100)
         }
     }
 
-    fun finish() {
+    suspend fun finish() {
+        while (value.value < 1.0) {
+            _value.value += 0.01
+            delay(eta / 400)
+        }
     }
 }
