@@ -51,12 +51,13 @@ class FakeProgressTest {
         runTest {
             val progressTracker = FakeProgress(ETA)
 
-            launch { progressTracker.start() }
+            val job = launch { progressTracker.start() }
             delay(4 * ETA)
             progressTracker.finish()
             delay(ENDING_DURATION)
 
             assertEquals(1.0, progressTracker.progress.value, EPSILON)
+            job.cancel()
         }
 
     @Test
@@ -83,6 +84,27 @@ class FakeProgressTest {
             assertTrue { awaitItem() <= 1.0 }
         }
         job.cancel()
+    }
+
+    @Test
+    fun `progress must be monotonic`() = runTest {
+        val progressTracker = FakeProgress(ETA)
+
+        launch { progressTracker.start() }
+
+        launch {
+            delay(ETA)
+            progressTracker.finish()
+        }
+
+        progressTracker.progress.test {
+            var previous = awaitItem()
+            while (previous < 1.0) {
+                val current = awaitItem()
+                assertTrue(current >= previous, "Progress decreased from $previous to $current")
+                previous = current
+            }
+        }
     }
 
 }
