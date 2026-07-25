@@ -6,6 +6,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlin.concurrent.atomics.AtomicBoolean
 import kotlin.concurrent.atomics.ExperimentalAtomicApi
 import kotlin.math.exp
+import kotlin.math.min
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.times
@@ -22,12 +23,14 @@ class FakeProgress(private val eta: Duration) {
         val ENDING_DURATION = 150.milliseconds
     }
 
-    private var isTaskFinished: AtomicBoolean = AtomicBoolean(false)
+    private val isStarted: AtomicBoolean = AtomicBoolean(false)
+    private val isTaskFinished: AtomicBoolean = AtomicBoolean(false)
 
     private val _progress = MutableStateFlow(0.0)
     val progress: StateFlow<Double> = _progress
 
     suspend fun start() {
+        check(isStarted.compareAndSet(expectedValue = false, newValue = true)) { "FakeProgress already started" }
         _progress.value = 0.0
         isTaskFinished.store(false)
         var elapsedTime = Duration.ZERO
@@ -53,7 +56,7 @@ class FakeProgress(private val eta: Duration) {
             delay(UPDATE_INTERVAL)
             elapsedTime += UPDATE_INTERVAL
 
-            _progress.value = (elapsedTime / ENDING_DURATION).coerceIn(B, 1.0)
+            _progress.value = min(elapsedTime / ENDING_DURATION, 1.0)
         }
     }
 

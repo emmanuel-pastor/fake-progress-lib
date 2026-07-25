@@ -7,6 +7,7 @@ import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.yield
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.minutes
@@ -105,6 +106,17 @@ class FakeProgressTest {
                 previous = current
             }
         }
+    }
+
+    @Test
+    fun `multiple calls to start should raise an exception`() = runTest {
+        val progressTracker = FakeProgress(ETA)
+
+        val job = launch { progressTracker.start() }
+        yield()
+
+        assertFailsWith<IllegalStateException> { progressTracker.start() }
+        job.cancel()
     }
 
 }
