@@ -25,7 +25,7 @@ class FakeProgressTest {
         runTest {
             val progressTracker = FakeProgress(ETA)
 
-            launch { progressTracker.start() }
+            backgroundScope.launch { progressTracker.start() }
             delay(ETA)
             progressTracker.finish()
             delay(ENDING_DURATION)
@@ -38,13 +38,12 @@ class FakeProgressTest {
         runTest {
             val progressTracker = FakeProgress(ETA)
 
-            val job = launch { progressTracker.start() }
+            backgroundScope.launch { progressTracker.start() }
             yield()
             progressTracker.finish()
             delay(ENDING_DURATION)
 
             assertEquals(1.0, progressTracker.progress.value, EPSILON)
-            job.cancel()
         }
 
     @Test
@@ -52,31 +51,29 @@ class FakeProgressTest {
         runTest {
             val progressTracker = FakeProgress(ETA)
 
-            val job = launch { progressTracker.start() }
+            backgroundScope.launch { progressTracker.start() }
             delay(4 * ETA)
             progressTracker.finish()
             delay(ENDING_DURATION)
 
             assertEquals(1.0, progressTracker.progress.value, EPSILON)
-            job.cancel()
         }
 
     @Test
     fun `don't reach 100 percent before finish has been called`() = runTest {
         val progressTracker = FakeProgress(ETA)
 
-        val job = launch { progressTracker.start() }
+        backgroundScope.launch { progressTracker.start() }
         delay(ETA)
 
         assertTrue { progressTracker.progress.value < 1.0 }
-        job.cancel()
     }
 
     @Test
     fun `don't go above 100 percent`() = runTest {
         val progressTracker = FakeProgress(ETA)
 
-        val job = launch { progressTracker.start() }
+        backgroundScope.launch { progressTracker.start() }
         delay(ETA)
         progressTracker.finish()
         delay(ETA)
@@ -84,14 +81,13 @@ class FakeProgressTest {
         progressTracker.progress.test {
             assertTrue { awaitItem() <= 1.0 }
         }
-        job.cancel()
     }
 
     @Test
     fun `progress must be monotonic`() = runTest {
         val progressTracker = FakeProgress(ETA)
 
-        launch { progressTracker.start() }
+        backgroundScope.launch { progressTracker.start() }
 
         launch {
             delay(ETA)
@@ -112,7 +108,7 @@ class FakeProgressTest {
     fun `progress must reach 100 percent smoothly`() = runTest {
         val progressTracker = FakeProgress(ETA)
 
-        launch { progressTracker.start() }
+        backgroundScope.launch { progressTracker.start() }
 
         launch {
             delay(ETA / 2)
@@ -134,7 +130,7 @@ class FakeProgressTest {
     fun `progress must reach 100 percent smoothly when finished immediately`() = runTest {
         val progressTracker = FakeProgress(ETA)
 
-        launch { progressTracker.start() }
+        backgroundScope.launch { progressTracker.start() }
         yield()
         progressTracker.finish()
 
@@ -153,11 +149,10 @@ class FakeProgressTest {
     fun `multiple calls to start should raise an exception`() = runTest {
         val progressTracker = FakeProgress(ETA)
 
-        val job = launch { progressTracker.start() }
+        backgroundScope.launch { progressTracker.start() }
         yield()
 
         assertFailsWith<IllegalStateException> { progressTracker.start() }
-        job.cancel()
     }
 
 }
