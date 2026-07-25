@@ -6,7 +6,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlin.concurrent.atomics.AtomicBoolean
 import kotlin.concurrent.atomics.ExperimentalAtomicApi
 import kotlin.math.exp
-import kotlin.math.min
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.times
@@ -52,11 +51,12 @@ class FakeProgress(private val eta: Duration) {
         }
 
         elapsedTime = Duration.ZERO
+        val phase3StartProgress = _progress.value
         while (_progress.value < 1.0) {
             delay(UPDATE_INTERVAL)
             elapsedTime += UPDATE_INTERVAL
 
-            _progress.value = min(elapsedTime / ENDING_DURATION, 1.0)
+            _progress.value = (elapsedTime / ENDING_DURATION).coerceIn(phase3StartProgress, 1.0)
         }
     }
 
