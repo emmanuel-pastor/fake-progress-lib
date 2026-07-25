@@ -109,6 +109,47 @@ class FakeProgressTest {
     }
 
     @Test
+    fun `progress must reach 100 percent smoothly`() = runTest {
+        val progressTracker = FakeProgress(ETA)
+
+        launch { progressTracker.start() }
+
+        launch {
+            delay(ETA / 2)
+            progressTracker.finish()
+        }
+
+        progressTracker.progress.test {
+            var previous = awaitItem()
+            while (previous < 1.0) {
+                val current = awaitItem()
+                val delta = current - previous
+                assertTrue(delta <= 0.1, "Progress jumped too much: from $previous to $current (delta=$delta)")
+                previous = current
+            }
+        }
+    }
+
+    @Test
+    fun `progress must reach 100 percent smoothly when finished immediately`() = runTest {
+        val progressTracker = FakeProgress(ETA)
+
+        launch { progressTracker.start() }
+        yield()
+        progressTracker.finish()
+
+        progressTracker.progress.test {
+            var previous = awaitItem()
+            while (previous < 1.0) {
+                val current = awaitItem()
+                val delta = current - previous
+                assertTrue(delta <= 0.1, "Progress jumped too much: from $previous to $current (delta=$delta)")
+                previous = current
+            }
+        }
+    }
+
+    @Test
     fun `multiple calls to start should raise an exception`() = runTest {
         val progressTracker = FakeProgress(ETA)
 
