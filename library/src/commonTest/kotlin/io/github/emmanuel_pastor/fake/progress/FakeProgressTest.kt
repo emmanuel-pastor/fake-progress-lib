@@ -52,6 +52,7 @@ class FakeProgressTest {
             val progressTracker = FakeProgress(ETA)
 
             backgroundScope.launch { progressTracker.start() }
+
             delay(4 * ETA)
             progressTracker.finish()
             delay(ENDING_DURATION)
@@ -74,12 +75,18 @@ class FakeProgressTest {
         val progressTracker = FakeProgress(ETA)
 
         backgroundScope.launch { progressTracker.start() }
-        delay(ETA)
-        progressTracker.finish()
-        delay(ETA)
+
+        launch {
+            delay(ETA)
+            progressTracker.finish()
+        }
 
         progressTracker.progress.test {
-            assertTrue { awaitItem() <= 1.0 }
+            while (true) {
+                val current = awaitItem()
+                assertTrue(current <= 1.0, "Progress went above 100%: $current")
+                if (current >= 1.0 - EPSILON) break
+            }
         }
     }
 
@@ -96,7 +103,7 @@ class FakeProgressTest {
 
         progressTracker.progress.test {
             var previous = awaitItem()
-            while (previous < 1.0) {
+            while (previous < 1.0 - EPSILON) {
                 val current = awaitItem()
                 assertTrue(current >= previous, "Progress decreased from $previous to $current")
                 previous = current
@@ -117,7 +124,7 @@ class FakeProgressTest {
 
         progressTracker.progress.test {
             var previous = awaitItem()
-            while (previous < 1.0) {
+            while (previous < 1.0 - EPSILON) {
                 val current = awaitItem()
                 val delta = current - previous
                 assertTrue(delta <= 0.1, "Progress jumped too much: from $previous to $current (delta=$delta)")
@@ -131,12 +138,15 @@ class FakeProgressTest {
         val progressTracker = FakeProgress(ETA)
 
         backgroundScope.launch { progressTracker.start() }
-        yield()
-        progressTracker.finish()
+
+        launch {
+            yield()
+            progressTracker.finish()
+        }
 
         progressTracker.progress.test {
             var previous = awaitItem()
-            while (previous < 1.0) {
+            while (previous < 1.0 - EPSILON) {
                 val current = awaitItem()
                 val delta = current - previous
                 assertTrue(delta <= 0.1, "Progress jumped too much: from $previous to $current (delta=$delta)")
