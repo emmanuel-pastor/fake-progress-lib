@@ -7,14 +7,15 @@ import kotlin.concurrent.Volatile
 import kotlin.math.exp
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.times
 
 class FakeProgress(private val eta: Duration) {
     private companion object {
         val UPDATE_INTERVAL = 16.milliseconds
 
-        const val A = 0.9
+        const val A = 0.85
         const val B = 0.95
-        const val K = 2.5
+        const val K = 4.0
 
         val ENDING_DURATION = 150.milliseconds
     }
@@ -37,21 +38,21 @@ class FakeProgress(private val eta: Duration) {
             elapsedTime += UPDATE_INTERVAL
         }
 
+        elapsedTime = Duration.ZERO
         while (!isTaskFinished) {
-            val progress = elapsedTime / eta
-            _progress.value = (1 - exp(-K * progress)).coerceIn(A, B)
+            val progress = elapsedTime / (B * eta - A * eta)
+            _progress.value = A + (1 - exp(-K * progress)) * (B - A)
 
             delay(UPDATE_INTERVAL)
             elapsedTime += UPDATE_INTERVAL
         }
 
-        var endingElapsedTime = Duration.ZERO
-
+        elapsedTime = Duration.ZERO
         while (_progress.value < 1.0) {
             delay(UPDATE_INTERVAL)
-            endingElapsedTime += UPDATE_INTERVAL
+            elapsedTime += UPDATE_INTERVAL
 
-            _progress.value = (endingElapsedTime / ENDING_DURATION).coerceIn(B, 1.0)
+            _progress.value = (elapsedTime / ENDING_DURATION).coerceIn(B, 1.0)
         }
     }
 
