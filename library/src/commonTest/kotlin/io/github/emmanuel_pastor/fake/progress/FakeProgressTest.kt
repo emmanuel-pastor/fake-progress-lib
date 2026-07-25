@@ -2,41 +2,87 @@ package io.github.emmanuel_pastor.fake.progress
 
 import app.cash.turbine.test
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.yield
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
+import kotlin.time.times
 
 class FakeProgressTest {
-    private val EPSILON = 1e-6
+    private companion object {
+        const val EPSILON = 1e-6
+        val ETA = 5.seconds
+        val ENDING_DURATION = 200.milliseconds
+    }
 
     @Test
-    fun `reach 100% within 200ms or less after estimated time`() = runTest {
-        val eta = 10.seconds
-        val progressTracker = FakeProgress(eta)
+    fun `reach 100 percent within 200ms or less when finish is called right after estimated time has elapsed`() =
+        runTest {
+            val progressTracker = FakeProgress(ETA)
 
-        progressTracker.start()
-        delay(eta)
+            launch { progressTracker.start() }
+            delay(ETA)
+            progressTracker.finish()
+            delay(ENDING_DURATION)
+
+            assertEquals(1.0, progressTracker.progress.value, EPSILON)
+        }
+
+    @Test
+    fun `reach 100 percent within 200ms or less when finish has been called before estimated time has elapsed`() =
+        runTest {
+            val progressTracker = FakeProgress(ETA)
+
+            val job = launch { progressTracker.start() }
+            yield()
+            progressTracker.finish()
+            delay(ENDING_DURATION)
+
+            assertEquals(1.0, progressTracker.progress.value, EPSILON)
+            job.cancel()
+        }
+
+    @Test
+    fun `reach 100 percent within 200ms or less when finish has been called long after estimated time has elapsed`() =
+        runTest {
+            val progressTracker = FakeProgress(ETA)
+
+            launch { progressTracker.start() }
+            delay(4 * ETA)
+            progressTracker.finish()
+            delay(ENDING_DURATION)
+
+            assertEquals(1.0, progressTracker.progress.value, EPSILON)
+        }
+
+    @Test
+    fun `don't reach 100 percent before finish has been called`() = runTest {
+        val progressTracker = FakeProgress(ETA)
+
+        val job = launch { progressTracker.start() }
+        delay(ETA)
+
+        assertTrue { progressTracker.progress.value < 1.0 }
+        job.cancel()
+    }
+
+    @Test
+    fun `don't go above 100 percent`() = runTest {
+        val progressTracker = FakeProgress(ETA)
+
+        val job = launch { progressTracker.start() }
+        delay(ETA)
         progressTracker.finish()
-        delay(200.milliseconds)
+        delay(ETA)
 
-        progressTracker.value.test {
-            assertEquals(1.0, awaitItem(), EPSILON)
+        progressTracker.progress.test {
+            assertTrue { awaitItem() <= 1.0 }
         }
+        job.cancel()
     }
 
-    @Test
-    fun `don't reach 100% before finish has been called`() = runTest {
-        val eta = 10.seconds
-        val progressTracker = FakeProgress(eta)
-
-        progressTracker.start()
-        delay(eta)
-
-        progressTracker.value.test {
-            assertTrue { awaitItem() < 1.0 }
-        }
-    }
 }
