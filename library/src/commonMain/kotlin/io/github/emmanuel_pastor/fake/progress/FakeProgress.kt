@@ -20,7 +20,7 @@ class FakeProgress(private val eta: Duration) {
         const val B = 0.95
         const val K = 4.0
 
-        val ENDING_DURATION = 150.milliseconds
+        val ENDING_DURATION = 200.milliseconds
     }
 
     private val isStarted: AtomicBoolean = AtomicBoolean(false)

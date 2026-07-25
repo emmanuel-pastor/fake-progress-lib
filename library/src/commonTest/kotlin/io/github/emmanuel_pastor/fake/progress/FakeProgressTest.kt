@@ -17,7 +17,7 @@ class FakeProgressTest {
     private companion object {
         const val EPSILON = 1e-6
         val ETA = 1.minutes
-        val ENDING_DURATION = 200.milliseconds
+        val ENDING_DURATION = 250.milliseconds
     }
 
     @Test
