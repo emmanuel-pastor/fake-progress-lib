@@ -3,12 +3,14 @@ package io.github.emmanuel_pastor.fake.progress
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlin.concurrent.Volatile
+import kotlin.concurrent.atomics.AtomicBoolean
+import kotlin.concurrent.atomics.ExperimentalAtomicApi
 import kotlin.math.exp
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.times
 
+@OptIn(ExperimentalAtomicApi::class)
 class FakeProgress(private val eta: Duration) {
     private companion object {
         val UPDATE_INTERVAL = 16.milliseconds
@@ -20,18 +22,17 @@ class FakeProgress(private val eta: Duration) {
         val ENDING_DURATION = 150.milliseconds
     }
 
-    @Volatile
-    private var isTaskFinished = false
+    private var isTaskFinished: AtomicBoolean = AtomicBoolean(false)
 
     private val _progress = MutableStateFlow(0.0)
     val progress: StateFlow<Double> = _progress
 
     suspend fun start() {
         _progress.value = 0.0
-        isTaskFinished = false
+        isTaskFinished.store(false)
         var elapsedTime = Duration.ZERO
 
-        while (_progress.value < A && !isTaskFinished) {
+        while (_progress.value < A && !isTaskFinished.load()) {
             _progress.value = (elapsedTime / eta).coerceIn(0.0, A)
 
             delay(UPDATE_INTERVAL)
@@ -39,7 +40,7 @@ class FakeProgress(private val eta: Duration) {
         }
 
         elapsedTime = Duration.ZERO
-        while (!isTaskFinished) {
+        while (!isTaskFinished.load()) {
             val progress = elapsedTime / (B * eta - A * eta)
             _progress.value = A + (1 - exp(-K * progress)) * (B - A)
 
@@ -57,6 +58,6 @@ class FakeProgress(private val eta: Duration) {
     }
 
     fun finish() {
-        isTaskFinished = true
+        isTaskFinished.store(true)
     }
 }
