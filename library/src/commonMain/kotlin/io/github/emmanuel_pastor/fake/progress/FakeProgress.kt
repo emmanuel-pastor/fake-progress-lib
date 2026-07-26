@@ -40,8 +40,8 @@ class FakeProgress(private val eta: Duration) {
         val ENDING_DURATION = 200.milliseconds
     }
 
-    private val isStarted: AtomicBoolean = AtomicBoolean(false)
-    private val isTaskFinished: AtomicBoolean = AtomicBoolean(false)
+    private val isProgressRunning: AtomicBoolean = AtomicBoolean(false)
+    private val isTaskComplete: AtomicBoolean = AtomicBoolean(false)
 
     private val _progress = MutableStateFlow(0.0)
 
@@ -61,12 +61,17 @@ class FakeProgress(private val eta: Duration) {
      * @throws IllegalStateException if the progress has already been started.
      */
     suspend fun start() {
-        check(isStarted.compareAndSet(expectedValue = false, newValue = true)) { "FakeProgress already started" }
+        check(
+            isProgressRunning.compareAndSet(
+                expectedValue = false,
+                newValue = true
+            )
+        ) { "FakeProgress already started" }
         try {
             _progress.value = 0.0
             var elapsedTime = Duration.ZERO
 
-            while (_progress.value < A && !isTaskFinished.load()) {
+            while (_progress.value < A && !isTaskComplete.load()) {
                 _progress.value = (elapsedTime / eta).coerceIn(0.0, A)
 
                 delay(UPDATE_INTERVAL)
@@ -74,7 +79,7 @@ class FakeProgress(private val eta: Duration) {
             }
 
             elapsedTime = Duration.ZERO
-            while (!isTaskFinished.load()) {
+            while (!isTaskComplete.load()) {
                 val progress = elapsedTime / (B * eta - A * eta)
                 _progress.value = A + (1 - exp(-K * progress)) * (B - A)
 
@@ -91,8 +96,8 @@ class FakeProgress(private val eta: Duration) {
                 _progress.value = (elapsedTime / ENDING_DURATION).coerceIn(phase3StartProgress, 1.0)
             }
         } finally {
-            isStarted.store(false)
-            isTaskFinished.store(false)
+            isProgressRunning.store(false)
+            isTaskComplete.store(false)
         }
     }
 
@@ -102,6 +107,6 @@ class FakeProgress(private val eta: Duration) {
      * Calling this will cause the [progress] to quickly move to 1.0 and the [start] function to return.
      */
     fun finish() {
-        isTaskFinished.store(true)
+        isTaskComplete.store(true)
     }
 }
