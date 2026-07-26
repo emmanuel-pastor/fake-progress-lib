@@ -28,7 +28,7 @@ class FakeProgressTest {
 
             backgroundScope.launch { progressTracker.start() }
             delay(ETA)
-            progressTracker.finish()
+            progressTracker.markTaskComplete()
             delay(ENDING_DURATION)
 
             assertEquals(1.0, progressTracker.progress.value, EPSILON)
@@ -41,7 +41,7 @@ class FakeProgressTest {
 
             backgroundScope.launch { progressTracker.start() }
             yield()
-            progressTracker.finish()
+            progressTracker.markTaskComplete()
             delay(ENDING_DURATION)
 
             assertEquals(1.0, progressTracker.progress.value, EPSILON)
@@ -55,7 +55,7 @@ class FakeProgressTest {
             backgroundScope.launch { progressTracker.start() }
 
             delay(4 * ETA)
-            progressTracker.finish()
+            progressTracker.markTaskComplete()
             delay(ENDING_DURATION)
 
             assertEquals(1.0, progressTracker.progress.value, EPSILON)
@@ -79,7 +79,7 @@ class FakeProgressTest {
 
         launch {
             delay(ETA)
-            progressTracker.finish()
+            progressTracker.markTaskComplete()
         }
 
         progressTracker.progress.test {
@@ -99,7 +99,7 @@ class FakeProgressTest {
 
         launch {
             delay(ETA)
-            progressTracker.finish()
+            progressTracker.markTaskComplete()
         }
 
         progressTracker.progress.test {
@@ -120,7 +120,7 @@ class FakeProgressTest {
 
         launch {
             delay(ETA / 2)
-            progressTracker.finish()
+            progressTracker.markTaskComplete()
         }
 
         progressTracker.progress.test {
@@ -142,7 +142,7 @@ class FakeProgressTest {
 
         launch {
             yield()
-            progressTracker.finish()
+            progressTracker.markTaskComplete()
         }
 
         progressTracker.progress.test {
@@ -173,7 +173,7 @@ class FakeProgressTest {
         // First cycle
         val job1 = launch { progressTracker.start() }
         delay(ETA)
-        progressTracker.finish()
+        progressTracker.markTaskComplete()
         job1.join()
         assertEquals(1.0, progressTracker.progress.value, EPSILON)
 
@@ -182,7 +182,7 @@ class FakeProgressTest {
         yield()
         assertTrue(progressTracker.progress.value < 1.0, "Progress should be reset for the second cycle")
 
-        progressTracker.finish()
+        progressTracker.markTaskComplete()
         job2.join()
         assertEquals(1.0, progressTracker.progress.value, EPSILON)
     }
@@ -193,7 +193,7 @@ class FakeProgressTest {
         val progressTracker = FakeProgress(ETA)
 
         // Signal finish before first start
-        progressTracker.finish()
+        progressTracker.markTaskComplete()
 
         // First start should finish quickly
         val startTime = testScheduler.currentTime
@@ -208,7 +208,7 @@ class FakeProgressTest {
         assertTrue(progressTracker.progress.value > 0.0)
         assertTrue(progressTracker.progress.value < 1.0)
 
-        progressTracker.finish()
+        progressTracker.markTaskComplete()
         job2.join()
         assertEquals(1.0, progressTracker.progress.value, EPSILON)
     }

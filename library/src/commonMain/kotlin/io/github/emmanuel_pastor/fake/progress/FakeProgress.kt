@@ -17,7 +17,7 @@ import kotlin.time.times
  * 1. **Linear Phase**: Progress increases linearly towards 85% ([A]) over the estimated duration ([eta]).
  * 2. **Asymptotic Phase**: Progress slows down and asymptotically approaches 95% ([B]), ensuring the user
  *    sees continued activity even if the task takes longer than expected.
- * 3. **Ending Phase**: Once [finish] is called, the progress quickly reaches 100% (1.0) over a short duration.
+ * 3. **Ending Phase**: Once [markTaskComplete] is called, the progress quickly reaches 100% (1.0) over a short duration.
  *
  * @param eta The estimated time the task is expected to take.
  */
@@ -36,7 +36,7 @@ class FakeProgress(private val eta: Duration) {
         /** The decay constant for the asymptotic phase. */
         const val K = 4.0
 
-        /** The duration over which the progress reaches 1.0 after [finish] is called. */
+        /** The duration over which the progress reaches 1.0 after [markTaskComplete] is called. */
         val ENDING_DURATION = 200.milliseconds
     }
 
@@ -56,7 +56,7 @@ class FakeProgress(private val eta: Duration) {
      * This is a suspending function that runs the progress loop. It will:
      * - Reset progress to 0.0.
      * - Move through the linear and asymptotic phases.
-     * - Wait for [finish] to be called to complete the ending phase.
+     * - Wait for [markTaskComplete] to be called to complete the ending phase.
      *
      * @throws IllegalStateException if the progress has already been started.
      */
@@ -106,7 +106,7 @@ class FakeProgress(private val eta: Duration) {
      *
      * Calling this will cause the [progress] to quickly move to 1.0 and the [start] function to return.
      */
-    fun finish() {
+    fun markTaskComplete() {
         isTaskComplete.store(true)
     }
 }
