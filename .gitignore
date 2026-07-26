@@ -39,3 +39,4 @@ local.properties
 xcuserdata
 #So we don't accidentally commit our private keys
 *.gpg
+/docs/kdoc

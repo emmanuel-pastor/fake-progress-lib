@@ -4,6 +4,7 @@ plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.android.kotlin.multiplatform.library)
     alias(libs.plugins.vanniktech.mavenPublish)
+    alias(libs.plugins.dokka)
 }
 
 group = "io.github.emmanuel-pastor"
@@ -46,6 +47,12 @@ kotlin {
             implementation(libs.kotlinx.coroutines.test)
             implementation(libs.turbine)
         }
+    }
+}
+
+dokka {
+    dokkaPublications.configureEach {
+        outputDirectory.set(layout.projectDirectory.dir("../docs/kdoc"))
     }
 }
 
