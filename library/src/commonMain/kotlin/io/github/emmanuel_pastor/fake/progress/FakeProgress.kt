@@ -30,33 +30,37 @@ class FakeProgress(private val eta: Duration) {
 
     suspend fun start() {
         check(isStarted.compareAndSet(expectedValue = false, newValue = true)) { "FakeProgress already started" }
-        _progress.value = 0.0
-        isTaskFinished.store(false)
-        var elapsedTime = Duration.ZERO
+        try {
+            _progress.value = 0.0
+            var elapsedTime = Duration.ZERO
 
-        while (_progress.value < A && !isTaskFinished.load()) {
-            _progress.value = (elapsedTime / eta).coerceIn(0.0, A)
+            while (_progress.value < A && !isTaskFinished.load()) {
+                _progress.value = (elapsedTime / eta).coerceIn(0.0, A)
 
-            delay(UPDATE_INTERVAL)
-            elapsedTime += UPDATE_INTERVAL
-        }
+                delay(UPDATE_INTERVAL)
+                elapsedTime += UPDATE_INTERVAL
+            }
 
-        elapsedTime = Duration.ZERO
-        while (!isTaskFinished.load()) {
-            val progress = elapsedTime / (B * eta - A * eta)
-            _progress.value = A + (1 - exp(-K * progress)) * (B - A)
+            elapsedTime = Duration.ZERO
+            while (!isTaskFinished.load()) {
+                val progress = elapsedTime / (B * eta - A * eta)
+                _progress.value = A + (1 - exp(-K * progress)) * (B - A)
 
-            delay(UPDATE_INTERVAL)
-            elapsedTime += UPDATE_INTERVAL
-        }
+                delay(UPDATE_INTERVAL)
+                elapsedTime += UPDATE_INTERVAL
+            }
 
-        elapsedTime = Duration.ZERO
-        val phase3StartProgress = _progress.value
-        while (_progress.value < 1.0) {
-            delay(UPDATE_INTERVAL)
-            elapsedTime += UPDATE_INTERVAL
+            elapsedTime = Duration.ZERO
+            val phase3StartProgress = _progress.value
+            while (_progress.value < 1.0) {
+                delay(UPDATE_INTERVAL)
+                elapsedTime += UPDATE_INTERVAL
 
-            _progress.value = (elapsedTime / ENDING_DURATION).coerceIn(phase3StartProgress, 1.0)
+                _progress.value = (elapsedTime / ENDING_DURATION).coerceIn(phase3StartProgress, 1.0)
+            }
+        } finally {
+            isStarted.store(false)
+            isTaskFinished.store(false)
         }
     }
 

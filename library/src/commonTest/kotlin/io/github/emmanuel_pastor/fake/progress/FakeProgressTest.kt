@@ -1,6 +1,7 @@
 package io.github.emmanuel_pastor.fake.progress
 
 import app.cash.turbine.test
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
@@ -165,4 +166,50 @@ class FakeProgressTest {
         assertFailsWith<IllegalStateException> { progressTracker.start() }
     }
 
+    @Test
+    fun `should be able to start again after a full cycle`() = runTest {
+        val progressTracker = FakeProgress(ETA)
+
+        // First cycle
+        val job1 = launch { progressTracker.start() }
+        delay(ETA)
+        progressTracker.finish()
+        job1.join()
+        assertEquals(1.0, progressTracker.progress.value, EPSILON)
+
+        // Second cycle
+        val job2 = launch { progressTracker.start() }
+        yield()
+        assertTrue(progressTracker.progress.value < 1.0, "Progress should be reset for the second cycle")
+
+        progressTracker.finish()
+        job2.join()
+        assertEquals(1.0, progressTracker.progress.value, EPSILON)
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Test
+    fun `finish before start only affects the first cycle`() = runTest {
+        val progressTracker = FakeProgress(ETA)
+
+        // Signal finish before first start
+        progressTracker.finish()
+
+        // First start should finish quickly
+        val startTime = testScheduler.currentTime
+        progressTracker.start()
+        val duration = testScheduler.currentTime - startTime
+        assertTrue(duration < ETA.inWholeMilliseconds, "Should have finished quickly, but took $duration ms")
+        assertEquals(1.0, progressTracker.progress.value, EPSILON)
+
+        // Second start should run normally
+        val job2 = launch { progressTracker.start() }
+        delay(ETA / 2)
+        assertTrue(progressTracker.progress.value > 0.0)
+        assertTrue(progressTracker.progress.value < 1.0)
+
+        progressTracker.finish()
+        job2.join()
+        assertEquals(1.0, progressTracker.progress.value, EPSILON)
+    }
 }
