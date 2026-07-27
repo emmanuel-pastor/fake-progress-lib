@@ -51,6 +51,7 @@ kotlin {
 }
 
 dokka {
+    moduleName.set("fake-progress-lib")
     dokkaPublications.configureEach {
         outputDirectory.set(layout.projectDirectory.dir("../docs/kdoc"))
     }
