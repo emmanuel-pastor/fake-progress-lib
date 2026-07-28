@@ -23,4 +23,4 @@ jobs:
         uses: gradle/actions/setup-gradle@v4
 
       - name: Run Lint (check)
-        run: ./gradlew :library:check -x test # Run check but skip tests to avoid duplication with test.yml
+        run: ./gradlew :library:check -x testAndroid -x jvmTest -x iosSimulatorArm64Test -x linuxX64Test -x wasmJsBrowserTest # Run check but skip tests to avoid duplication with test.yml
