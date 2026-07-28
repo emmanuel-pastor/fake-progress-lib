@@ -5,6 +5,7 @@ plugins {
     alias(libs.plugins.android.kotlin.multiplatform.library)
     alias(libs.plugins.vanniktech.mavenPublish)
     alias(libs.plugins.dokka)
+    alias(libs.plugins.kover)
 }
 
 group = "io.github.emmanuel-pastor"
@@ -46,6 +47,14 @@ kotlin {
             implementation(libs.kotlin.test)
             implementation(libs.kotlinx.coroutines.test)
             implementation(libs.turbine)
+        }
+    }
+}
+
+koverReport {
+    defaults {
+        xml {
+            onCheck = true
         }
     }
 }

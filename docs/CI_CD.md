@@ -3,27 +3,50 @@
 This document describes the Continuous Integration and Continuous Deployment processes for the `fake-progress-lib`
 project.
 
-## Documentation Generation
+## Continuous Integration
 
-The project uses [Dokka](https://kotlinlang.org/docs/dokka-introduction.html) to generate browsable HTML documentation
-from KDoc comments.
+The project uses GitHub Actions for Continuous Integration. The following workflows are triggered on every push and pull
+request to the `develop` branch.
 
-### Generating Locally
+### Workflow Pipeline
 
-To generate the documentation locally, run the following command:
+```mermaid
+graph TD
+  Trigger[Push / PR to develop] --> Lint[Linting]
+  Trigger --> Test[Test Matrix]
+  Trigger --> CodeQL[Security Analysis]
+  Test --> Coverage[Coverage Report]
 
-```bash
-./gradlew :library:dokkaGeneratePublicationHtml
+  subgraph Platforms
+    JVM[JVM]
+    Android[Android]
+    Wasm[WasmJS]
+    Linux[Linux]
+    iOS[iOS]
+  end
+
+  Test -.-> JVM
+  Test -.-> Android
+  Test -.-> Wasm
+  Test -.-> Linux
+  Test -.-> iOS
 ```
 
-The generated HTML will be available at `kdoc/index.html`.
+### Workflows
+
+- **Test (`test.yml`)**: Runs the test suite across all supported platforms (JVM, Android, WasmJS, Linux, and iOS).
+  - Collects and uploads test reports as artifacts on failure.
+  - Generates a consolidated Kover coverage report after all tests pass.
+  - Surfaces the coverage percentage in the workflow summary.
+- **Lint (`lint.yml`)**: Performs static analysis and code style checks via the Gradle `check` task.
+- **CodeQL (`security-analysis.yml`)**: Performs security analysis to identify potential vulnerabilities.
 
 ## Continuous Deployment
 
 ### GitHub Pages (Documentation)
 
 A GitHub Actions workflow (`deploy-docs.yml`) is included to automatically build and deploy the documentation to GitHub
-Pages on every push to the `main` branch.
+Pages on every push to the `develop` branch.
 
 ### Library Publication
 
