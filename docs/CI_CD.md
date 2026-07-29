@@ -39,7 +39,6 @@ graph TD
   - Generates a consolidated Kover coverage report after all tests pass.
   - Surfaces the coverage percentage in the workflow summary.
 - **Lint (`lint.yml`)**: Performs static analysis and code style checks via the Gradle `check` task.
-- **CodeQL (`security-analysis.yml`)**: Performs security analysis to identify potential vulnerabilities.
 
 ## Continuous Deployment
 
