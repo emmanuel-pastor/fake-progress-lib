@@ -5,3 +5,9 @@ plugins {
     alias(libs.plugins.dokka)
     alias(libs.plugins.kover) apply false
 }
+
+rootProject.plugins.withType<org.jetbrains.kotlin.gradle.targets.wasm.nodejs.WasmNodeJsRootPlugin> {
+    rootProject.extensions.configure<org.jetbrains.kotlin.gradle.targets.wasm.nodejs.WasmNodeJsEnvSpec> {
+        version.set(libs.versions.node.get())
+    }
+}
