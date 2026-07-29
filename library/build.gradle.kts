@@ -6,6 +6,7 @@ plugins {
     alias(libs.plugins.vanniktech.mavenPublish)
     alias(libs.plugins.dokka)
     alias(libs.plugins.kover)
+    alias(libs.plugins.jacoco.to.cobertura)
 }
 
 group = "io.github.emmanuel-pastor"

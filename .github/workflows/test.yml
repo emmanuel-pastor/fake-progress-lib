@@ -66,7 +66,7 @@ jobs:
         uses: gradle/actions/setup-gradle@v5
 
       - name: Generate Coverage Report
-        run: ./gradlew :library:koverXmlReport
+        run: ./gradlew :library:koverXmlReport :library:koverXmlReportToCobertura
 
       - name: Upload Coverage Report
         uses: actions/upload-artifact@v7
@@ -74,19 +74,11 @@ jobs:
           name: kover-report
           path: library/build/reports/kover/
 
-      - name: Convert JaCoCo to Cobertura
-        uses: lucasalt/jacoco-to-cobertura-action@v2.0.4
-        with:
-          path_to_jacoco_report: library/build/reports/kover/report.xml
-          path_to_cobertura_report: library/build/reports/kover/cobertura.xml
-          repository_name: ${{ github.repository }}
-          pull_request_number: ${{ github.event.pull_request.number }}
-
       - name: Upload coverage report
         if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
         uses: actions/upload-code-coverage@v1
         with:
-          file: library/build/reports/kover/cobertura.xml
+          file: library/build/reports/kover/cobertura-report.xml
           language: Kotlin
           label: code-coverage/kover
 
