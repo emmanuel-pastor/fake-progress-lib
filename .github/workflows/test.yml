@@ -42,7 +42,7 @@ jobs:
 
       - name: Upload Test Reports
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: test-reports-${{ matrix.target }}
           path: library/build/reports/tests/
@@ -64,7 +64,7 @@ jobs:
         run: ./gradlew :library:koverXmlReport
 
       - name: Upload Coverage Report
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: kover-report
           path: library/build/reports/kover/report.xml
