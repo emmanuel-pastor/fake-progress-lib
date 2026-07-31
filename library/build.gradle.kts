@@ -56,6 +56,16 @@ koverReport {
         xml {
             onCheck = true
         }
+        verify {
+            onCheck = true
+            rule {
+                bound {
+                    minValue = 80
+                    metric = kotlinx.kover.gradle.plugin.dsl.MetricType.INSTRUCTION
+                    aggregation = kotlinx.kover.gradle.plugin.dsl.AggregationType.COVERED_PERCENTAGE
+                }
+            }
+        }
     }
 }
 

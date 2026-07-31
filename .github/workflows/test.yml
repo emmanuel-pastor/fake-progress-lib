@@ -8,7 +8,6 @@ on:
 
 permissions:
   contents: read
-  code-quality: write
 
 jobs:
   test:
@@ -65,8 +64,8 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v5
 
-      - name: Generate Coverage Report
-        run: ./gradlew :library:koverXmlReport
+      - name: Generate and Verify Coverage Report
+        run: ./gradlew :library:koverXmlReport :library:koverVerify
 
       - name: Upload Coverage Report
         uses: actions/upload-artifact@v7
@@ -74,26 +73,12 @@ jobs:
           name: kover-report
           path: library/build/reports/kover/
 
-      - name: Convert JaCoCo XML to Cobertura
-        run: python3 .github/scripts/jacoco_to_cobertura.py library/build/reports/kover/report.xml library/build/reports/kover/cobertura.xml
-
-      - name: Upload coverage report
-        # Skip coverage upload for pull requests from forks because they have restricted permissions.
-        if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
-        uses: actions/upload-code-coverage@v1
-        with:
-          file: library/build/reports/kover/cobertura.xml
-          language: Kotlin
-          label: code-coverage/kover
-
       - name: Surface Coverage in Summary
         run: |
           if [ -f library/build/reports/kover/report.xml ]; then
-            # Extract coverage percentage (simplified)
-            # Kover XML format: <counter type="INSTRUCTION" missed="X" covered="Y"/>
-            MISSED=$(grep 'type="INSTRUCTION"' library/build/reports/kover/report.xml | sed -n 's/.*missed="\([^"]*\)".*/\1/p' | head -n 1)
-            COVERED=$(grep 'type="INSTRUCTION"' library/build/reports/kover/report.xml | sed -n 's/.*covered="\([^"]*\)".*/\1/p' | head -n 1)
-            if [ "$MISSED" != "" ] && [ "$COVERED" != "" ]; then
+            MISSED=$(grep 'type="INSTRUCTION"' library/build/reports/kover/report.xml | grep -o 'missed="[^"]*"' | head -n 1 | grep -o '[0-9]*')
+            COVERED=$(grep 'type="INSTRUCTION"' library/build/reports/kover/report.xml | grep -o 'covered="[^"]*"' | head -n 1 | grep -o '[0-9]*')
+            if [ -n "$MISSED" ] && [ -n "$COVERED" ]; then
               TOTAL=$((MISSED + COVERED))
               if [ $TOTAL -gt 0 ]; then
                 PERCENTAGE=$(echo "scale=2; $COVERED * 100 / $TOTAL" | bc)
