@@ -37,6 +37,7 @@ graph TD
 - **Test (`test.yml`)**: Runs the test suite across all supported platforms (JVM, Android, WasmJS, Linux, and iOS).
   - Collects and uploads test reports as artifacts on failure.
   - Generates a consolidated Kover coverage report after all tests pass.
+  - Enforces a code coverage gate (minimum 80% instruction coverage).
   - Surfaces the coverage percentage in the workflow summary.
 - **Lint (`lint.yml`)**: Performs static analysis and code style checks via the Gradle `check` task.
 
