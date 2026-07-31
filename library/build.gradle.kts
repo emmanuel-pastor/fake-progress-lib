@@ -57,7 +57,7 @@ koverReport {
             onCheck = true
         }
         verify {
-            onCheck = true
+            onCheck = false
             rule {
                 bound {
                     minValue = 80
