@@ -4,7 +4,6 @@ plugins {
     alias(libs.plugins.vanniktech.mavenPublish) apply false
     alias(libs.plugins.dokka)
     alias(libs.plugins.kover) apply false
-    alias(libs.plugins.jacoco.to.cobertura) apply false
 }
 
 rootProject.plugins.withType<org.jetbrains.kotlin.gradle.targets.wasm.nodejs.WasmNodeJsRootPlugin> {

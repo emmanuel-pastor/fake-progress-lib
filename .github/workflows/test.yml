@@ -66,7 +66,7 @@ jobs:
         uses: gradle/actions/setup-gradle@v5
 
       - name: Generate Coverage Report
-        run: ./gradlew :library:koverXmlReport :library:koverXmlReportToCobertura
+        run: ./gradlew :library:koverXmlReport
 
       - name: Upload Coverage Report
         uses: actions/upload-artifact@v7
@@ -74,11 +74,17 @@ jobs:
           name: kover-report
           path: library/build/reports/kover/
 
+      - name: Convert JaCoCo XML to Cobertura
+        run: |
+          pip install cover2cover --quiet
+          cover2cover library/build/reports/kover/report.xml src/main/kotlin > library/build/reports/kover/cobertura.xml
+
       - name: Upload coverage report
+        # Skip coverage upload for pull requests from forks because they have restricted permissions.
         if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
         uses: actions/upload-code-coverage@v1
         with:
-          file: library/build/reports/kover/cobertura-report.xml
+          file: library/build/reports/kover/cobertura.xml
           language: Kotlin
           label: code-coverage/kover
 
