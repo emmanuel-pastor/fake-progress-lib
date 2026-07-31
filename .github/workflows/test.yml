@@ -75,9 +75,7 @@ jobs:
           path: library/build/reports/kover/
 
       - name: Convert JaCoCo XML to Cobertura
-        run: |
-          pip install cover2cover --quiet
-          cover2cover library/build/reports/kover/report.xml src/main/kotlin > library/build/reports/kover/cobertura.xml
+        run: python3 .github/scripts/jacoco_to_cobertura.py library/build/reports/kover/report.xml library/build/reports/kover/cobertura.xml
 
       - name: Upload coverage report
         # Skip coverage upload for pull requests from forks because they have restricted permissions.
