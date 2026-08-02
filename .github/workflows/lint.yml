@@ -28,7 +28,7 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
       - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v5
+        uses: gradle/actions/setup-gradle@v6
 
       - name: Run Lint (check)
         run: ./gradlew :library:check -x testAndroid -x jvmTest -x iosSimulatorArm64Test -x linuxX64Test -x wasmJsBrowserTest # Run check but skip tests to avoid duplication with test.yml
