@@ -1,0 +1,104 @@
+name: Test
+
+on:
+  push:
+    branches: [ "main" ]
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
+      - 'LICENSE'
+  pull_request:
+    branches: [ "main" ]
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
+      - 'LICENSE'
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Test (${{ matrix.target }})
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - target: jvmTest
+            os: ubuntu-latest
+          - target: testAndroidHostTest
+            os: ubuntu-latest
+          - target: wasmJsBrowserTest
+            os: ubuntu-latest
+            setup_node: true
+          - target: linuxX64Test
+            os: ubuntu-latest
+          - target: iosSimulatorArm64Test
+            os: macos-latest
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Set up JDK 21
+        uses: actions/setup-java@v5
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v6
+
+      - name: Setup Node.js
+        if: matrix.setup_node
+        uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          package-manager-cache: false
+
+      - name: Run Tests
+        run: ./gradlew :library:${{ matrix.target }}
+
+      - name: Upload Test Reports
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: test-reports-${{ matrix.target }}
+          path: library/build/reports/tests/
+
+  coverage:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Set up JDK 21
+        uses: actions/setup-java@v5
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v6
+
+      - name: Generate and Verify Coverage Report
+        run: ./gradlew :library:koverXmlReport :library:koverVerify
+
+      - name: Upload Coverage Report
+        uses: actions/upload-artifact@v7
+        with:
+          name: kover-report
+          path: library/build/reports/kover/
+
+      - name: Surface Coverage in Summary
+        run: |
+          if [ -f library/build/reports/kover/report.xml ]; then
+            MISSED=$(grep 'type="INSTRUCTION"' library/build/reports/kover/report.xml | grep -o 'missed="[^"]*"' | head -n 1 | grep -o '[0-9]*')
+            COVERED=$(grep 'type="INSTRUCTION"' library/build/reports/kover/report.xml | grep -o 'covered="[^"]*"' | head -n 1 | grep -o '[0-9]*')
+            if [ -n "$MISSED" ] && [ -n "$COVERED" ]; then
+              TOTAL=$((MISSED + COVERED))
+              if [ $TOTAL -gt 0 ]; then
+                PERCENTAGE=$(echo "scale=2; $COVERED * 100 / $TOTAL" | bc)
+                echo "### Code Coverage: $PERCENTAGE%" >> $GITHUB_STEP_SUMMARY
+              fi
+            fi
+          fi
