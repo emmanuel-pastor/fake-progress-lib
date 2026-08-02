@@ -29,13 +29,9 @@ jobs:
       - name: Install commitlint
         run: npm install --save-dev @commitlint/cli @commitlint/config-conventional
 
-      - name: Lint commits (PR range)
+      - name: Lint PR title (squash merge target)
         if: github.event_name == 'pull_request'
-        run: |
-          npx commitlint \
-            --from ${{ github.event.pull_request.base.sha }} \
-            --to   ${{ github.event.pull_request.head.sha }} \
-            --verbose
+        run: echo "${{ github.event.pull_request.title }}" | npx commitlint --verbose
 
       - name: Lint last commit (push to main)
         if: github.event_name == 'push'
