@@ -9,7 +9,7 @@ plugins {
 }
 
 group = "io.github.emmanuel-pastor"
-version = "1.0.0"
+version = rootProject.version
 
 kotlin {
     jvm()
