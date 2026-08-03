@@ -39,7 +39,9 @@ graph TD
   - Generates a consolidated Kover coverage report after all tests pass.
   - Enforces a code coverage gate (minimum 80% instruction coverage).
   - Surfaces the coverage percentage in the workflow summary.
-- **Lint (`lint.yml`)**: Performs static analysis and code style checks via the Gradle `check` task.
+- **Lint (`lint.yml`)**: Performs static code analysis via [detekt](https://detekt.dev/), using the
+  `detekt-rules-libraries` plugin to enforce library API best practices (explicit return types, no public data classes,
+  no unnecessarily public entities).
 
 ## Continuous Deployment
 

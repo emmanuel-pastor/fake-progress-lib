@@ -1,0 +1,14 @@
+build:
+  maxIssues: 0
+
+libraries:
+  ForbiddenPublicDataClass:
+    active: true
+    ignorePackages:
+      - '*.internal'
+      - '*.internal.*'
+  LibraryCodeMustSpecifyReturnType:
+    active: true
+    allowOmitUnit: false
+  LibraryEntitiesShouldNotBePublic:
+    active: true
