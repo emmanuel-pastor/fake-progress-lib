@@ -6,16 +6,21 @@ project.
 ## Continuous Integration
 
 The project uses GitHub Actions for Continuous Integration. The following workflows are triggered on every push and pull
-request to the `develop` branch.
+request to the `main` branch.
 
 ### Workflow Pipeline
 
 ```mermaid
 graph TD
-  Trigger[Push / PR to develop] --> Lint[Linting]
+  Trigger[Push / PR to main] --> Lint[Linting]
   Trigger --> Test[Test Matrix]
   Trigger --> CodeQL[Security Analysis]
+  Trigger --> CommitLint[Commit Lint]
   Test --> Coverage[Coverage Report]
+  CommitLint --> ReleasePlease[Release Please]
+  ReleasePlease -->|release created| Tag[Release Tag]
+  ReleasePlease -->|release created| Changelog[Changelog Update]
+  ReleasePlease -->|release created| Version[Version Bump]
 
   subgraph Platforms
     JVM[JVM]
@@ -42,13 +47,21 @@ graph TD
 - **Lint (`lint.yml`)**: Performs static code analysis via [detekt](https://detekt.dev/), using the
   `detekt-rules-libraries` plugin to enforce library API best practices (explicit return types, no public data classes,
   no unnecessarily public entities).
+- **Release (`release.yml`)**: Enforces conventional commits and automates versioning, changelog generation, and release
+  tagging via [Release Please](https://github.com/googleapis/release-please).
+  - **Commit Lint**: On every push to `main` or pull request targeting `main`, all commit messages (or the PR title for
+    squash merges) are validated against the [Conventional Commits](https://www.conventionalcommits.org/) specification
+    using [commitlint](https://commitlint.js.org/).
+  - **Release Please**: On every push to `main`, Release Please inspects the commit history and, when releasable changes
+    are present, opens or updates a release PR that bumps the version and updates `CHANGELOG.md`. Merging that PR
+    creates a GitHub release and the corresponding version tag.
 
 ## Continuous Deployment
 
 ### GitHub Pages (Documentation)
 
 A GitHub Actions workflow (`deploy-docs.yml`) is included to automatically build and deploy the documentation to GitHub
-Pages on every push to the `develop` branch.
+Pages on every push to the `main` branch.
 
 ### Library Publication
 
