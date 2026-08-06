@@ -3,16 +3,8 @@ name: Test
 on:
   push:
     branches: [ "main" ]
-    paths-ignore:
-      - '**.md'
-      - 'docs/**'
-      - 'LICENSE'
   pull_request:
     branches: [ "main" ]
-    paths-ignore:
-      - '**.md'
-      - 'docs/**'
-      - 'LICENSE'
 
 permissions:
   contents: read
@@ -40,26 +32,41 @@ jobs:
       - uses: actions/checkout@v7
         with:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
-      - name: Set up JDK 21
+
+      - uses: dorny/paths-filter@v4
+        id: changes
+        with:
+          filters: |
+            src:
+              - '**'
+              - '!**.md'
+              - '!docs/**'
+              - '!LICENSE'
+
+      - if: steps.changes.outputs.src == 'true'
+        name: Set up JDK 21
         uses: actions/setup-java@v5
         with:
           java-version: '21'
           distribution: 'temurin'
-      - name: Setup Gradle
+
+      - if: steps.changes.outputs.src == 'true'
+        name: Setup Gradle
         uses: gradle/actions/setup-gradle@v6
 
-      - name: Setup Node.js
-        if: matrix.setup_node
+      - if: matrix.setup_node && steps.changes.outputs.src == 'true'
+        name: Setup Node.js
         uses: actions/setup-node@v7
         with:
           node-version: '24'
           package-manager-cache: false
 
-      - name: Run Tests
+      - if: steps.changes.outputs.src == 'true'
+        name: Run Tests
         run: ./gradlew :library:${{ matrix.target }}
 
       - name: Upload Test Reports
-        if: failure()
+        if: failure() && steps.changes.outputs.src == 'true'
         uses: actions/upload-artifact@v7
         with:
           name: test-reports-${{ matrix.target }}
@@ -72,24 +79,41 @@ jobs:
       - uses: actions/checkout@v7
         with:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
-      - name: Set up JDK 21
+
+      - uses: dorny/paths-filter@v4
+        id: changes
+        with:
+          filters: |
+            src:
+              - '**'
+              - '!**.md'
+              - '!docs/**'
+              - '!LICENSE'
+
+      - if: steps.changes.outputs.src == 'true'
+        name: Set up JDK 21
         uses: actions/setup-java@v5
         with:
           java-version: '21'
           distribution: 'temurin'
-      - name: Setup Gradle
+
+      - if: steps.changes.outputs.src == 'true'
+        name: Setup Gradle
         uses: gradle/actions/setup-gradle@v6
 
-      - name: Generate and Verify Coverage Report
+      - if: steps.changes.outputs.src == 'true'
+        name: Generate and Verify Coverage Report
         run: ./gradlew :library:koverXmlReport :library:koverVerify
 
-      - name: Upload Coverage Report
+      - if: steps.changes.outputs.src == 'true'
+        name: Upload Coverage Report
         uses: actions/upload-artifact@v7
         with:
           name: kover-report
           path: library/build/reports/kover/
 
-      - name: Surface Coverage in Summary
+      - if: steps.changes.outputs.src == 'true'
+        name: Surface Coverage in Summary
         run: |
           if [ -f library/build/reports/kover/report.xml ]; then
             MISSED=$(grep 'type="INSTRUCTION"' library/build/reports/kover/report.xml | grep -o 'missed="[^"]*"' | head -n 1 | grep -o '[0-9]*')
