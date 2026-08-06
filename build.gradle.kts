@@ -28,7 +28,7 @@ tasks.register("checkKotlinBadge") {
         val readmeText = readmeFile.readText()
         val expectedBadge = "kotlin-$version-blue"
         if (!readmeText.contains(expectedBadge)) {
-            error("README.md Kotlin version badge is out of sync with gradle/libs.versions.toml (expected $expectedBadge). Run './gradlew updateKotlinBadge' to fix it.")
+            error("README.md Kotlin version badge is out of sync with gradle/libs.versions.toml (expected $expectedBadge).")
         }
     }
 }
