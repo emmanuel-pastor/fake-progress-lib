@@ -11,6 +11,10 @@ rootProject.plugins.withType<org.jetbrains.kotlin.gradle.targets.wasm.nodejs.Was
     rootProject.extensions.configure<org.jetbrains.kotlin.gradle.targets.wasm.nodejs.WasmNodeJsEnvSpec> {
         version.set(libs.versions.node.get())
     }
+    rootProject.tasks.matching { it.name == "kotlinWasmToolingSetup" || it.name == "kotlinWasmNpmInstall" }
+        .configureEach {
+            dependsOn(rootProject.tasks.matching { it.name == "kotlinWasmYarnSetup" })
+        }
 }
 
 tasks.register("checkKotlinBadge") {
