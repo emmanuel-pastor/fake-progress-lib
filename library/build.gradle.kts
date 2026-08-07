@@ -6,6 +6,7 @@ plugins {
     alias(libs.plugins.vanniktech.mavenPublish)
     alias(libs.plugins.dokka)
     alias(libs.plugins.kover)
+    alias(libs.plugins.detekt)
 }
 
 group = "io.github.emmanuel-pastor"
@@ -49,6 +50,15 @@ kotlin {
             implementation(libs.turbine)
         }
     }
+}
+
+detekt {
+    buildUponDefaultConfig = true
+    config.setFrom("$rootDir/config/detekt.yml")
+}
+
+dependencies {
+    detektPlugins(libs.detekt.rules.libraries)
 }
 
 koverReport {
