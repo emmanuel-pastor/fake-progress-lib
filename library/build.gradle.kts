@@ -14,7 +14,7 @@ version = rootProject.version
 
 kotlin {
     jvm()
-    androidLibrary {
+    android {
         namespace = "io.github.emmanuel_pastor.fake.progress"
         compileSdk = libs.versions.android.compileSdk.get().toInt()
         minSdk = libs.versions.android.minSdk.get().toInt()
@@ -61,18 +61,15 @@ dependencies {
     detektPlugins(libs.detekt.rules.libraries)
 }
 
-koverReport {
-    defaults {
-        xml {
-            onCheck = true
-        }
-        verify {
-            onCheck = false
-            rule {
-                bound {
-                    minValue = 80
-                    metric = kotlinx.kover.gradle.plugin.dsl.MetricType.INSTRUCTION
-                    aggregation = kotlinx.kover.gradle.plugin.dsl.AggregationType.COVERED_PERCENTAGE
+kover {
+    reports {
+        total {
+            xml {
+                onCheck = true
+            }
+            verify {
+                rule {
+                    minBound(80, kotlinx.kover.gradle.plugin.dsl.CoverageUnit.INSTRUCTION)
                 }
             }
         }
