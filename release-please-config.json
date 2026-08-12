@@ -8,7 +8,7 @@
         {
           "type": "generic",
           "path": "gradle.properties",
-          "search-value": "version=",
+          "search-value": "version=${version}",
           "replace-value": "version=${version}"
         }
       ],
