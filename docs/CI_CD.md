@@ -16,6 +16,7 @@ graph TD
   Trigger --> Test[Test Matrix]
   Trigger --> CodeQL[Security Analysis]
   Trigger --> CommitLint[Commit Lint]
+  Trigger --> BinaryCompat[Binary Compatibility]
   Test --> Coverage[Coverage Report]
   CommitLint --> ReleasePlease[Release Please]
   ReleasePlease -->|release created| Tag[Release Tag]
@@ -47,6 +48,10 @@ graph TD
 - **Lint (`lint.yml`)**: Performs static code analysis via [detekt](https://detekt.dev/), using the
   `detekt-rules-libraries` plugin to enforce library API best practices (explicit return types, no public data classes,
   no unnecessarily public entities).
+- **Binary Compatibility (`binary-compatibility.yml`)**: Validates Kotlin ABI binary compatibility against reference
+  dumps using `./gradlew checkKotlinAbi` on pull requests targeting `main`. It also enforces a bridge check: if `.api`
+  files are modified, the PR title must contain a conventional breaking change indicator (e.g., `feat!:`) to guarantee
+  Release Please executes a major version bump.
 - **Release (`release.yml`)**: Enforces conventional commits and automates versioning, changelog generation, and release
   tagging via [Release Please](https://github.com/googleapis/release-please).
   - **Commit Lint**: On every push to `main` or pull request targeting `main`, all commit messages (or the PR title for

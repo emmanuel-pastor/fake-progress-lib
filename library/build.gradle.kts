@@ -13,6 +13,9 @@ group = "io.github.emmanuel-pastor"
 version = rootProject.version
 
 kotlin {
+    @OptIn(org.jetbrains.kotlin.gradle.dsl.abi.ExperimentalAbiValidation::class)
+    abiValidation()
+
     jvm()
     android {
         namespace = "io.github.emmanuel_pastor.fake.progress"

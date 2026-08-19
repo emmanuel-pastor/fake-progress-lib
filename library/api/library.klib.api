@@ -1,0 +1,17 @@
+// Klib ABI Dump
+// Targets: [iosArm64, iosSimulatorArm64, linuxX64, wasmJs]
+// Rendering settings:
+// - Signature version: 2
+// - Show manifest properties: true
+// - Show declarations: true
+
+// Library unique name: <io.github.emmanuel-pastor:library>
+final class io.github.emmanuel_pastor.fake.progress/FakeProgress { // io.github.emmanuel_pastor.fake.progress/FakeProgress|null[0]
+    constructor <init>(kotlin.time/Duration) // io.github.emmanuel_pastor.fake.progress/FakeProgress.<init>|<init>(kotlin.time.Duration){}[0]
+
+    final val progress // io.github.emmanuel_pastor.fake.progress/FakeProgress.progress|{}progress[0]
+        final fun <get-progress>(): kotlinx.coroutines.flow/StateFlow<kotlin/Double> // io.github.emmanuel_pastor.fake.progress/FakeProgress.progress.<get-progress>|<get-progress>(){}[0]
+
+    final fun markTaskComplete() // io.github.emmanuel_pastor.fake.progress/FakeProgress.markTaskComplete|markTaskComplete(){}[0]
+    final suspend fun start() // io.github.emmanuel_pastor.fake.progress/FakeProgress.start|start(){}[0]
+}
