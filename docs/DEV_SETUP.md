@@ -38,6 +38,46 @@ Set `ANDROID_HOME` to point to your Android SDK location.
     - Value: Usually `~/Library/Android/sdk`.
     - Update `PATH`: Add `$ANDROID_HOME/platform-tools` and `$ANDROID_HOME/emulator` to your `PATH`.
 
+### 3. Browser for Linux WasmJS tests
+
+The WasmJS browser tests run with Karma. The current project configuration uses
+ChromeHeadless by default, so Linux developers who run the tests without changing the
+Gradle configuration must provide a Chrome- or Chromium-based browser.
+
+Set `CHROME_BIN` to the executable available on your system:
+
+```bash
+command -v google-chrome || command -v chromium || command -v chromium-browser
+```
+
+Add the result to your `~/.bashrc` (or `~/.zshrc` for Zsh)
+
+#### Firefox alternative
+
+You can use Firefox instead of Chrome/Chromium, but this requires changing the WasmJS
+browser configuration in `library/build.gradle.kts`:
+
+```kotlin
+wasmJs {
+    browser {
+        testTask {
+            useKarma {
+                useFirefox()
+            }
+        }
+    }
+    binaries.executable()
+}
+```
+
+With Firefox installed, set its executable path before running the tests:
+
+```bash
+command -v firefox
+```
+
+Add the result to your `~/.bashrc` (or `~/.zshrc` for Zsh)
+
 ## Project Configuration
 
 ### local.properties
@@ -80,5 +120,6 @@ To run tests for a specific target, you can use:
 - **JVM**: `./gradlew :library:jvmTest`
 - **iOS (Simulator)**: `./gradlew :library:iosSimulatorArm64Test` (Requires macOS and Xcode)
 - **Linux**: `./gradlew :library:linuxX64Test` (Requires Linux host)
+- **WasmJS**: `./gradlew :library:wasmJsBrowserTest`
 
 If everything is configured correctly, the build should start and the tests should pass.
