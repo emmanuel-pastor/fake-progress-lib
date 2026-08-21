@@ -3,6 +3,7 @@ name: Binary Compatibility
 on:
   pull_request:
     branches: [ "main" ]
+    types: [ opened, edited, synchronize, reopened ]
 
 permissions:
   contents: read

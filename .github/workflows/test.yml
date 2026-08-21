@@ -23,9 +23,21 @@ jobs:
           - target: wasmJsBrowserTest
             os: ubuntu-latest
             setup_node: true
+          - target: jsBrowserTest
+            os: ubuntu-latest
+            setup_node: true
+          - target: jsNodeTest
+            os: ubuntu-latest
+            setup_node: true
           - target: linuxX64Test
             os: ubuntu-latest
           - target: iosSimulatorArm64Test
+            os: macos-latest
+          - target: macosArm64Test
+            os: macos-latest
+          - target: watchosSimulatorArm64Test
+            os: macos-latest
+          - target: tvosSimulatorArm64Test
             os: macos-latest
     runs-on: ${{ matrix.os }}
     steps:
