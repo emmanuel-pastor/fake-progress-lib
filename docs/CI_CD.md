@@ -26,25 +26,56 @@ graph TD
   subgraph Platforms
     JVM[JVM]
     Android[Android]
-    Wasm[WasmJS]
-    Linux[Linux]
-    iOS[iOS]
+    subgraph Web
+      JSB[JS Browser]
+      JSN[JS Node]
+      Wasm[WasmJS]
+    end
+    Linux[Linux x64]
+    subgraph Apple
+      macOS[macOS]
+      iOS[iOS Simulator]
+      watchOS[watchOS Simulator]
+      tvOS[tvOS Simulator]
+    end
   end
 
   Test -.-> JVM
   Test -.-> Android
+  Test -.-> JSB
+  Test -.-> JSN
   Test -.-> Wasm
   Test -.-> Linux
+  Test -.-> macOS
   Test -.-> iOS
+  Test -.-> watchOS
+  Test -.-> tvOS
 ```
 
 ### Workflows
 
-- **Test (`test.yml`)**: Runs the test suite across all supported platforms (JVM, Android, WasmJS, Linux, and iOS).
+- **Test (`test.yml`)**: Runs the test suite across the configured platforms. Tier policy: only Kotlin/Native Tier 1 and
+  Tier 2 targets that support running tests out of the box are executed; Tier 3 targets are excluded from CI test
+  execution.
   - Collects and uploads test reports as artifacts on failure.
   - Generates a consolidated Kover coverage report after all tests pass.
   - Enforces a code coverage gate (minimum 80% instruction coverage).
   - Surfaces the coverage percentage in the workflow summary.
+  - Native test matrix (Gradle tasks → runner):
+    - `linuxX64Test` → `ubuntu-latest`
+    - `macosArm64Test` → `macos-latest`
+    - `iosSimulatorArm64Test` → `macos-latest`
+    - `watchosSimulatorArm64Test` → `macos-latest`
+    - `tvosSimulatorArm64Test` → `macos-latest`
+  - Additional non-native tests:
+    - JVM: `jvmTest` on `ubuntu-latest`
+    - Android (host): `testAndroidHostTest` on `ubuntu-latest`
+    - Web:
+      - `jsBrowserTest` on `ubuntu-latest`
+      - `jsNodeTest` on `ubuntu-latest`
+      - `wasmJsBrowserTest` on `ubuntu-latest`
+  - Not executed in CI: Tier 3 native targets (e.g., `mingwX64`, `iosX64`, Android NDK targets) and Tier 2 targets that
+    do not support running tests on the available runners (e.g., `linuxArm64`).
 - **Lint (`lint.yml`)**: Performs static code analysis via [detekt](https://detekt.dev/), using the
   `detekt-rules-libraries` plugin to enforce library API best practices (explicit return types, no public data classes,
   no unnecessarily public entities). Additionally, it runs the `checkKotlinBadge` task to verify that the Kotlin version
