@@ -1,3 +1,4 @@
+import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
@@ -32,13 +33,43 @@ kotlin {
             jvmTarget = JvmTarget.JVM_11
         }
     }
+
+    // Kotlin/Native — Tier 1
+    macosArm64()
+
     iosArm64()
     iosSimulatorArm64()
+
+    // Kotlin/Native — Tier 2
     linuxX64()
-    @OptIn(org.jetbrains.kotlin.gradle.ExperimentalWasmDsl::class)
+    linuxArm64()
+
+    watchosSimulatorArm64()
+    watchosArm64()
+
+    tvosSimulatorArm64()
+    tvosArm64()
+
+    // Kotlin/Native — Tier 3
+    mingwX64()
+
+    iosX64()
+    watchosDeviceArm64()
+
+    androidNativeArm32()
+    androidNativeArm64()
+    androidNativeX86()
+    androidNativeX64()
+
+    // Web
+    js {
+        browser()
+        nodejs()
+    }
+
+    @OptIn(ExperimentalWasmDsl::class)
     wasmJs {
         browser()
-        binaries.executable()
     }
 
     sourceSets {
