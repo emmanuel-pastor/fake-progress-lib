@@ -23,6 +23,12 @@ jobs:
           - target: wasmJsBrowserTest
             os: ubuntu-latest
             setup_node: true
+          - target: jsBrowserTest
+            os: ubuntu-latest
+            setup_node: true
+          - target: jsNodeTest
+            os: ubuntu-latest
+            setup_node: true
           - target: linuxX64Test
             os: ubuntu-latest
           - target: iosSimulatorArm64Test
