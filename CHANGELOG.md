@@ -5,6 +5,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres
 to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.0](https://github.com/emmanuel-pastor/fake-progress-lib/compare/v0.1.1...v0.2.0) (2026-08-21)
+
+
+### ⚠ BREAKING CHANGES
+
+* **gradle:** remove unused androidNativeArm32 target ([#34](https://github.com/emmanuel-pastor/fake-progress-lib/issues/34))
+* **gradle:** expand multiplatform target support and enable wasm dsl ([#32](https://github.com/emmanuel-pastor/fake-progress-lib/issues/32))
+
+### Features
+
+* **gradle:** expand multiplatform target support and enable wasm dsl ([#32](https://github.com/emmanuel-pastor/fake-progress-lib/issues/32)) ([a2eb3b8](https://github.com/emmanuel-pastor/fake-progress-lib/commit/a2eb3b8bc762b5f22c79a21c6ae35ac65517b079))
+
+
+### Code Refactoring
+
+* **gradle:** remove unused androidNativeArm32 target ([#34](https://github.com/emmanuel-pastor/fake-progress-lib/issues/34)) ([def10fd](https://github.com/emmanuel-pastor/fake-progress-lib/commit/def10fdbd8f6880c9361718c69510bb0018b3d07))
+
 ## [0.1.1](https://github.com/emmanuel-pastor/fake-progress-lib/compare/v0.1.0...v0.1.1) (2026-08-02)
 
 
