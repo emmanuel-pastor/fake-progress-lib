@@ -72,7 +72,9 @@ class FakeProgress(private val eta: Duration) {
             var elapsedTime = Duration.ZERO
 
             while (_progress.value < A && !isTaskComplete.load()) {
-                _progress.value = (elapsedTime / eta).coerceIn(0.0, A)
+                // Phase 1 (linear): ensure monotonic and do not exceed A due to rounding
+                val candidate = (elapsedTime / eta).coerceIn(0.0, A)
+                _progress.value = candidate.coerceIn(_progress.value, A)
 
                 delay(UPDATE_INTERVAL)
                 elapsedTime += UPDATE_INTERVAL
@@ -81,7 +83,9 @@ class FakeProgress(private val eta: Duration) {
             elapsedTime = Duration.ZERO
             while (!isTaskComplete.load()) {
                 val progress = elapsedTime / (B * eta - A * eta)
-                _progress.value = A + (1 - exp(-K * progress)) * (B - A)
+                // Phase 2 (asymptotic towards B): clamp to be monotonic and not exceed B
+                val candidate = A + (1 - exp(-K * progress)) * (B - A)
+                _progress.value = candidate.coerceIn(_progress.value, B)
 
                 delay(UPDATE_INTERVAL)
                 elapsedTime += UPDATE_INTERVAL
@@ -94,8 +98,12 @@ class FakeProgress(private val eta: Duration) {
                 elapsedTime += UPDATE_INTERVAL
 
                 val t = (elapsedTime / ENDING_DURATION).coerceIn(0.0, 1.0)
-                _progress.value = phase3StartProgress + (1.0 - phase3StartProgress) * t
+                // Phase 3 (finish to 1.0): clamp to be monotonic and never exceed 1.0
+                val candidate = phase3StartProgress + (1.0 - phase3StartProgress) * t
+                _progress.value = candidate.coerceIn(_progress.value, 1.0)
             }
+            // Make sure we end exactly at 1.0 (avoid tiny rounding residue)
+            _progress.value = 1.0
         } finally {
             isProgressRunning.store(false)
             isTaskComplete.store(false)

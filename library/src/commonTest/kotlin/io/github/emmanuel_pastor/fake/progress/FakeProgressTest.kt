@@ -71,6 +71,7 @@ class FakeProgressTest {
         assertTrue { progressTracker.progress.value < 1.0 }
     }
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun `don't go above 100 percent`() = runTest {
         val progressTracker = FakeProgress(ETA)
@@ -83,6 +84,11 @@ class FakeProgressTest {
         }
 
         progressTracker.progress.test {
+            // Let the flow start and then advance virtual time so the delayed completion fires
+            yield()
+            testScheduler.advanceTimeBy(ETA.inWholeMilliseconds)
+            testScheduler.advanceTimeBy(ENDING_DURATION.inWholeMilliseconds)
+
             while (true) {
                 val current = awaitItem()
                 assertTrue(current <= 1.0, "Progress went above 100%: $current")
@@ -91,6 +97,7 @@ class FakeProgressTest {
         }
     }
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun `progress must be monotonic`() = runTest {
         val progressTracker = FakeProgress(ETA)
@@ -103,6 +110,11 @@ class FakeProgressTest {
         }
 
         progressTracker.progress.test {
+            // Let the flow start and then advance virtual time so the delayed completion fires
+            yield()
+            testScheduler.advanceTimeBy(ETA.inWholeMilliseconds)
+            testScheduler.advanceTimeBy(ENDING_DURATION.inWholeMilliseconds)
+
             var previous = awaitItem()
             while (previous < 1.0 - EPSILON) {
                 val current = awaitItem()
