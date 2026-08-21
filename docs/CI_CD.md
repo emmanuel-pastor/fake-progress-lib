@@ -47,7 +47,8 @@ graph TD
   - Surfaces the coverage percentage in the workflow summary.
 - **Lint (`lint.yml`)**: Performs static code analysis via [detekt](https://detekt.dev/), using the
   `detekt-rules-libraries` plugin to enforce library API best practices (explicit return types, no public data classes,
-  no unnecessarily public entities).
+  no unnecessarily public entities). Additionally, it runs the `checkKotlinBadge` task to verify that the Kotlin version
+  badge in `README.md` stays in sync with the Kotlin version configured in the project (`gradle/libs.versions.toml`).
 - **Binary Compatibility (`binary-compatibility.yml`)**: Validates Kotlin ABI binary compatibility against reference
   dumps using `./gradlew checkKotlinAbi` on pull requests targeting `main`. It also enforces a bridge check: if `.api`
   files are modified, the PR title must contain a conventional breaking change indicator (e.g., `feat!:`) to guarantee
