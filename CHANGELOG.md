@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres
 to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.2](https://github.com/emmanuel-pastor/fake-progress-lib/compare/v0.2.1...v0.2.2) (2026-08-22)
+
+
+### Bug Fixes
+
+* **release-please:** update version management config for gradle.properties ([#38](https://github.com/emmanuel-pastor/fake-progress-lib/issues/38)) ([cabe6dd](https://github.com/emmanuel-pastor/fake-progress-lib/commit/cabe6dd18c56fe76ef28a9e80928409aa1e287d2))
+
 ## [0.2.1](https://github.com/emmanuel-pastor/fake-progress-lib/compare/v0.2.0...v0.2.1) (2026-08-22)
 
 
