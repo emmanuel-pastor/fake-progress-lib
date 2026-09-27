@@ -191,12 +191,15 @@ Then calculated outputs match across all targets within standard floating-point 
 
 ### Technical Constraints
 
-> Document non-negotiable limitations (e.g., existing framework versions, external API constraints, persistence rules,
-> performance budgets).
+No external library can be used for the implementation of this feature.
 
 ### Assumptions & Open Questions
 
-> List assumptions that must be validated, along with open questions, their owners, and resolution deadlines.
+| Examined? | Type     | Description                                                                                                   |
+|-----------|----------|---------------------------------------------------------------------------------------------------------------|
+| []        | Question | How to calculate outputs across all targets within standard floating-point precision tolerances?              |
+| []        | Question | How to map the elapsed time relative to the ETA and the normalized time inside the animation curve functions? |
+| []        | Question | What should be validate on a provided custom curve?                                                           |
 
 ## Feature Decomposition & Architecture
 
