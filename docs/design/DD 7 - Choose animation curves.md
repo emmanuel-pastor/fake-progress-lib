@@ -47,13 +47,16 @@ users.
 
 - Change the number of phases in the progress animation.
 - Make the finishing phase configurable.
+- Backward compatibility or default curve fallbacks. Because the library is unreleased (pre-v1.0), breaking API
+  compatibility is acceptable. Both phase curves will be explicit, required parameters during configuration.
 
 ## Requirements & Acceptance Criteria
 
 ### Functional Requirements
 
 - API Configuration: The configuration builder/constructor must accept independent curve definitions (e.g., an interface
-  or function type (progress: Float) → Float) for Phase 1 and Phase 2.
+  or function type (progress: Float) → Float) for Phase 1 and Phase 2. Omitting either parameter must fail at compile
+  time or instantiation.
 
 - Predefined Presets: The library must expose standard predefined curves (e.g., Linear, EaseIn, EaseOut, EaseInOut).
 
@@ -63,7 +66,7 @@ users.
 - Phase Independence: Setting a custom curve on Phase 1 must not affect the curve configuration of Phase 2, and vice
   versa.
 
-- Validation & Error Handling: If a curve function returns values outside [0.0, 1.0] coerce it into [0.0, 1.0].
+- Boundary Enforcement: If a curve function returns values outside [0.0, 1.0] coerce it into [0.0, 1.0].
 
 ### Non-Functional Requirements
 
@@ -111,14 +114,72 @@ users.
 
 ### Acceptance Criteria
 
-> Define verifiable success conditions using the explicit `Given / When / Then` structure:
+#### Scenario 1: Mandatory Curve Parameter Instantiation
 
-Plaintext
-
+```gherkin
+Given the progress configuration constructor or builder
+When a developer instantiates a configuration with both Phase 1 and Phase 2 curves explicitly defined
+Then the configuration is successfully initialized
+When a developer attempts to instantiate a configuration without specifying either curve
+Then initialization fails at compile time
 ```
-Given [initial condition]
-When [event/action]
-Then [observable result]
+
+#### Scenario 2: Independent Phase Curve Execution
+
+```gherkin
+Given a progress configuration instantiated with CustomCurveA for Phase 1 and CustomCurveB for Phase 2
+When progress transitions through Phase 1
+Then output values are calculated strictly using CustomCurveA
+When progress transitions through Phase 2
+Then output values are calculated strictly using CustomCurveB
+And state changes in Phase 1 evaluation do not mutate or influence Phase 2 evaluation
+```
+
+#### Scenario 3: Predefined Curve Boundaries and Range Mapping
+
+```gherkin
+Given any provided predefined curve (Linear, EaseIn, EaseOut, EaseInOut, Asymptotic)
+When evaluated at input progress t = 0.0
+Then the calculated output is exactly 0.0
+When evaluated at input progress t = 1.0
+Then the calculated output is exactly 1.0
+When evaluated at any input progress t strictly between 0.0 and 1.0
+Then the output value remains continuously bounded within [0.0, 1.0]
+```
+
+#### Scenario 4: Custom Curve Out-of-Bounds Coercion
+
+```gherkin
+Given a custom curve function that evaluates to a value outside [0.0, 1.0]
+When progress is evaluated at runtime
+Then the progress engine clamps the output value to the valid range [0.0, 1.0]
+And progress values strictly maintain f(0.0) = 0.0 and f(1.0) = 1.0
+```
+
+#### Scenario 5: Deterministic Time-Driven Evaluation Across Frame Rates
+
+```gherkin
+Given a progress instance configured with mandatory curves for both phases
+When progress is sampled at elapsed timestamp t across varying sample frequencies (e.g., 30 Hz, 60 Hz, 120 Hz)
+Then the evaluated progress output at timestamp t is deterministic and identical
+And evaluation depends solely on elapsed time t relative to duration
+```
+
+#### Scenario 6: Zero Heap Allocation Per Frame
+
+```gherkin
+Given a configured animation curve
+When evaluated repeatedly inside an active render loop
+Then execution completes in O(1) time
+And produces zero heap allocations per evaluation frame
+```
+
+#### Scenario 7: Multiplatform Target Consistency
+
+```gherkin
+Given identical curve configurations across Kotlin Multiplatform targets (JVM, Android, iOS, JS/Wasm)
+When evaluated with identical input progress t
+Then calculated outputs match across all targets within standard floating-point precision tolerances
 ```
 
 ## Context & Constraints
