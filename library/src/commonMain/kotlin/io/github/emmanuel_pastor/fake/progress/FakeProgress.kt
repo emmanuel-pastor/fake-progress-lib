@@ -89,13 +89,14 @@ class FakeProgress(private val eta: Duration) {
 
             elapsedTime = Duration.ZERO
             val phase3StartProgress = _progress.value
-            while (_progress.value < 1.0) {
+            while (elapsedTime < ENDING_DURATION) {
                 delay(UPDATE_INTERVAL)
                 elapsedTime += UPDATE_INTERVAL
 
                 val t = (elapsedTime / ENDING_DURATION).coerceIn(0.0, 1.0)
                 _progress.value = phase3StartProgress + (1.0 - phase3StartProgress) * t
             }
+            _progress.value = 1.0
         } finally {
             isProgressRunning.store(false)
             isTaskComplete.store(false)

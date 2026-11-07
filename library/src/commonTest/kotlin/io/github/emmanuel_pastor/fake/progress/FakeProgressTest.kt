@@ -11,13 +11,13 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
 import kotlin.time.Duration.Companion.milliseconds
-import kotlin.time.Duration.Companion.minutes
+import kotlin.time.Duration.Companion.seconds
 import kotlin.time.times
 
 class FakeProgressTest {
     private companion object {
         const val EPSILON = 1e-6
-        val ETA = 1.minutes
+        val ETA = 1.seconds
         val ENDING_DURATION = 250.milliseconds
     }
 
