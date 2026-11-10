@@ -1,10 +1,22 @@
+import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
+
 plugins {
     alias(libs.plugins.android.kotlin.multiplatform.library) apply false
-    alias(libs.plugins.kotlinMultiplatform) apply  false
+    alias(libs.plugins.kotlinMultiplatform) apply false
     alias(libs.plugins.vanniktech.mavenPublish) apply false
     alias(libs.plugins.dokka)
     alias(libs.plugins.kover) apply false
     alias(libs.plugins.detekt) apply false
+    alias(libs.plugins.ben.manes.versions) apply true
+}
+
+tasks.named<DependencyUpdatesTask>("dependencyUpdates").configure {
+    rejectVersionIf {
+        val version = candidate.version
+        val stableVersionPattern = "^[0-9,.v-]+(-r)?$".toRegex()
+        val stableKeywordPattern = "(?i)(^|[.-])(RELEASE|FINAL|GA)([.-]|$)".toRegex()
+        !stableVersionPattern.matches(version) && !stableKeywordPattern.containsMatchIn(version)
+    }
 }
 
 rootProject.plugins.withType<org.jetbrains.kotlin.gradle.targets.wasm.nodejs.WasmNodeJsRootPlugin> {
